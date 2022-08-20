@@ -1,10 +1,10 @@
 import { useEffect, useState, useContext } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import moment from "moment";
 import DataContext from '../contexts/DataContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import Loading from '../components/Loading';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import SettingsButton from '../components/SettingsButton';
 import SettingsContext from '../contexts/SettingsContext';
 import { colors } from "../consts/colors";
@@ -135,7 +135,7 @@ export default function MainScreen({ navigation, route }) {
         setCurrentWeek(getWeekByIndex(weekIndex));
     }, [dataChanged, localDataLoading])
 
-    function handleDatePickerChange(event, selectedDate) {
+    function handleDatePickerConfirm(selectedDate) {
         let newIndex = 0;
         if(moment(selectedDate).isBefore(moment(getWeekByIndex(0)[0].date))) {
             newIndex = moment(selectedDate).diff(getWeekByIndex(0)[6].date, "weeks");
@@ -193,12 +193,15 @@ export default function MainScreen({ navigation, route }) {
                 </View>
             </ScrollView>
             {datePickerOpen && (
-                <DateTimePicker
-                testID="dateTimePicker"
-                value={datePickerDate}
-                mode="date"
-                is24Hour={true}
-                onChange={handleDatePickerChange}
+                <DateTimePickerModal
+                    isVisible={datePickerOpen}
+                    testID="dateTimePicker"
+                    value={datePickerDate}
+                    mode="date"
+                    is24Hour={true}
+                    onConfirm={handleDatePickerConfirm}
+                    onCancel={() => setDatePickerOpen(false)}
+                    display={Platform.OS === "ios" ? "inline" : ""}
                 />
             )}
             <SettingsButton style={styles.settingsButton} onPress={() => navigation.navigate("settings")}/>

@@ -1,14 +1,30 @@
 import { useState, useLayoutEffect, useContext } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { View, StyleSheet, Text, TouchableOpacity, Button } from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import SettingsContext from "../contexts/SettingsContext";
 import { colors } from "../consts/colors";
+import Modal from "react-native-modal";
 
 export default function Settings({ navigation, route }) {
     const [settings, setSettings] = useContext(SettingsContext);
     const [selectedFirstDayOfTheWeek, setSelectedFirstDayOfTheWeek] = useState(settings.firstDayOfTheWeek);
     const [selectedTheme, setSelectedTheme] = useState(settings.theme);
+    const [modalVisible, setModalVisible] = useState("none")
+
+    const daysOfTheWeekPickerData = [
+        {label: "Dimanche", value: "0"},
+        {label: "Lundi", value: "1"},
+        {label: "Mardi", value: "2"},
+        {label: "Mercredi", value: "3"},
+        {label: "Jeudi", value: "4"},
+        {label: "Vendredi", value: "5"},
+        {label: "Samedi", value: "6"}
+    ]
+
+    const themePickerData = [
+        {label: "Clair", value: "light"},
+        {label: "Sombre", value: "dark"}
+    ]
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -33,33 +49,74 @@ export default function Settings({ navigation, route }) {
         <View style={[styles.mainContainer, colors.secondColor[settings.theme]]}>
             <View style={styles.pickerContainer}>
                 <Text style={colors.secondColor[settings.theme]}>Premier jour de la semaine</Text>
-                <Picker
+                <TouchableOpacity
                     style={[styles.picker, colors.firstColor[settings.theme]]}
-                    selectedValue={selectedFirstDayOfTheWeek}
-                    onValueChange={(itemValue, itemIndex) =>
-                        setSelectedFirstDayOfTheWeek(itemValue)
-                    }>
-                    <Picker.Item label="Dimanche" value="0" />
-                    <Picker.Item label="Lundi" value="1" />
-                    <Picker.Item label="Mardi" value="2" />
-                    <Picker.Item label="Mercredi" value="3" />
-                    <Picker.Item label="Jeudi" value="4" />
-                    <Picker.Item label="Vendredi" value="5" />
-                    <Picker.Item label="Samedi" value="6" />
-                </Picker>
+                    title="test"
+                    onPress={() => setModalVisible("firstDay")}
+                >
+                    <Text style={colors.firstColor[settings.theme]}>{daysOfTheWeekPickerData[selectedFirstDayOfTheWeek].label}</Text>
+                    <AntDesign name="caretdown" size={10} color="#777" style={{marginRight: 10}} />
+                </TouchableOpacity>
             </View>
             <View style={styles.pickerContainer}>
                 <Text style={colors.secondColor[settings.theme]}>Thème</Text>
-                <Picker
+                <TouchableOpacity
                     style={[styles.picker, colors.firstColor[settings.theme]]}
-                    selectedValue={selectedTheme}
-                    onValueChange={(itemValue, itemIndex) =>
-                        setSelectedTheme(itemValue)
-                    }>
-                    <Picker.Item label="Clair" value="light" />
-                    <Picker.Item label="Sombre" value="dark" />
-                </Picker>
+                    title="test"
+                    onPress={() => setModalVisible("theme")}
+                >
+                    <Text style={colors.firstColor[settings.theme]}>{themePickerData.find((item) => item.value === selectedTheme).label}</Text>
+                    <AntDesign name="caretdown" size={10} color="#777" style={{marginRight: 10}} />
+                </TouchableOpacity>
             </View>
+            <Modal
+                isVisible={modalVisible === "firstDay"}
+                onBackButtonPress={() => setModalVisible("none")}
+                onBackdropPress={() => setModalVisible("none")}
+                backdropOpacity={0.7}
+                animationIn="fadeIn"
+                animationOut="fadeOut"
+                backdropTransitionOutTiming={0}
+            >
+                        <View style={styles.modalContainer}>
+                            {daysOfTheWeekPickerData.map(day => 
+                                <TouchableOpacity 
+                                    style={styles.modalItem} 
+                                    key={day.value}
+                                    onPress={() => {
+                                        setSelectedFirstDayOfTheWeek(day.value);
+                                        setModalVisible("none");
+                                    }}
+                                >
+                                    <Text>{day.label}</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>                        
+            </Modal>
+            <Modal
+                isVisible={modalVisible === "theme"}
+                onBackButtonPress={() => setModalVisible("none")}
+                onBackdropPress={() => setModalVisible("none")}
+                backdropOpacity={0.7}
+                animationIn="fadeIn"
+                animationOut="fadeOut"
+                backdropTransitionOutTiming={0}
+            >
+                        <View style={styles.modalContainer}>
+                            {themePickerData.map(theme => 
+                                <TouchableOpacity 
+                                    style={styles.modalItem} 
+                                    key={theme.value}
+                                    onPress={() => {
+                                        setSelectedTheme(theme.value);
+                                        setModalVisible("none");
+                                    }}
+                                >
+                                    <Text>{theme.label}</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>                        
+            </Modal>
         </View>
     );
 }
@@ -74,6 +131,19 @@ const styles = StyleSheet.create({
         marginVertical: 10
     },
     picker: {
-        backgroundColor: "#fff"
+        paddingVertical: 17,
+        paddingHorizontal: 10,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
+    },
+    modalContainer: {
+        borderRadius: 10,
+        padding: 10,
+        backgroundColor: "#ddd"
+    },
+    modalItem: {
+        paddingVertical: 20
     }
 })
