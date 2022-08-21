@@ -3,9 +3,10 @@ import { View, StyleSheet, Text, TouchableOpacity, Button } from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import SettingsContext from "../contexts/SettingsContext";
 import { colors } from "../consts/colors";
-import Modal from "react-native-modal";
+import ModalPicker from "../components/ModalPicker";
+import PickerBar from "../components/PickerBar";
 
-export default function Settings({ navigation, route }) {
+export default function Settings({ navigation }) {
     const [settings, setSettings] = useContext(SettingsContext);
     const [selectedFirstDayOfTheWeek, setSelectedFirstDayOfTheWeek] = useState(settings.firstDayOfTheWeek);
     const [selectedTheme, setSelectedTheme] = useState(settings.theme);
@@ -58,6 +59,7 @@ export default function Settings({ navigation, route }) {
                     <AntDesign name="caretdown" size={10} color="#777" style={{marginRight: 10}} />
                 </TouchableOpacity>
             </View>
+            <PickerBar />
             <View style={styles.pickerContainer}>
                 <Text style={colors.secondColor[settings.theme]}>Thème</Text>
                 <TouchableOpacity
@@ -69,54 +71,18 @@ export default function Settings({ navigation, route }) {
                     <AntDesign name="caretdown" size={10} color="#777" style={{marginRight: 10}} />
                 </TouchableOpacity>
             </View>
-            <Modal
+            <ModalPicker
                 isVisible={modalVisible === "firstDay"}
-                onBackButtonPress={() => setModalVisible("none")}
-                onBackdropPress={() => setModalVisible("none")}
-                backdropOpacity={0.7}
-                animationIn="fadeIn"
-                animationOut="fadeOut"
-                backdropTransitionOutTiming={0}
-            >
-                        <View style={styles.modalContainer}>
-                            {daysOfTheWeekPickerData.map(day => 
-                                <TouchableOpacity 
-                                    style={styles.modalItem} 
-                                    key={day.value}
-                                    onPress={() => {
-                                        setSelectedFirstDayOfTheWeek(day.value);
-                                        setModalVisible("none");
-                                    }}
-                                >
-                                    <Text>{day.label}</Text>
-                                </TouchableOpacity>
-                            )}
-                        </View>                        
-            </Modal>
-            <Modal
+                setModalVisible={setModalVisible}
+                setSelection={setSelectedFirstDayOfTheWeek}
+                data={daysOfTheWeekPickerData} 
+            />
+            <ModalPicker
                 isVisible={modalVisible === "theme"}
-                onBackButtonPress={() => setModalVisible("none")}
-                onBackdropPress={() => setModalVisible("none")}
-                backdropOpacity={0.7}
-                animationIn="fadeIn"
-                animationOut="fadeOut"
-                backdropTransitionOutTiming={0}
-            >
-                        <View style={styles.modalContainer}>
-                            {themePickerData.map(theme => 
-                                <TouchableOpacity 
-                                    style={styles.modalItem} 
-                                    key={theme.value}
-                                    onPress={() => {
-                                        setSelectedTheme(theme.value);
-                                        setModalVisible("none");
-                                    }}
-                                >
-                                    <Text>{theme.label}</Text>
-                                </TouchableOpacity>
-                            )}
-                        </View>                        
-            </Modal>
+                setModalVisible={setModalVisible}
+                setSelection={setSelectedTheme}
+                data={themePickerData} 
+            />
         </View>
     );
 }
@@ -137,13 +103,5 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between"
-    },
-    modalContainer: {
-        borderRadius: 10,
-        padding: 10,
-        backgroundColor: "#ddd"
-    },
-    modalItem: {
-        paddingVertical: 20
     }
 })

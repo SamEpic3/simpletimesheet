@@ -1,7 +1,7 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import Modal from "react-native-modal";
 
-export default function ModalPicker({ isVisible = false, setModalVisible, data }) {
+export default function ModalPicker({ isVisible = false, setModalVisible, setSelection, data }) {
     return (
         <Modal
                 isVisible={isVisible}
@@ -18,7 +18,7 @@ export default function ModalPicker({ isVisible = false, setModalVisible, data }
                                 style={styles.modalItem} 
                                 key={item.value}
                                 onPress={() => {
-                                    setPicker(item.value);
+                                    setSelection(item.value);
                                     setModalVisible("none");
                                 }}
                             >
