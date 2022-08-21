@@ -48,29 +48,20 @@ export default function Settings({ navigation }) {
 
     return (
         <View style={[styles.mainContainer, colors.secondColor[settings.theme]]}>
-            <View style={styles.pickerContainer}>
-                <Text style={colors.secondColor[settings.theme]}>Premier jour de la semaine</Text>
-                <TouchableOpacity
-                    style={[styles.picker, colors.firstColor[settings.theme]]}
-                    title="test"
-                    onPress={() => setModalVisible("firstDay")}
-                >
-                    <Text style={colors.firstColor[settings.theme]}>{daysOfTheWeekPickerData[selectedFirstDayOfTheWeek].label}</Text>
-                    <AntDesign name="caretdown" size={10} color="#777" style={{marginRight: 10}} />
-                </TouchableOpacity>
-            </View>
-            <PickerBar />
-            <View style={styles.pickerContainer}>
-                <Text style={colors.secondColor[settings.theme]}>Thème</Text>
-                <TouchableOpacity
-                    style={[styles.picker, colors.firstColor[settings.theme]]}
-                    title="test"
-                    onPress={() => setModalVisible("theme")}
-                >
-                    <Text style={colors.firstColor[settings.theme]}>{themePickerData.find((item) => item.value === selectedTheme).label}</Text>
-                    <AntDesign name="caretdown" size={10} color="#777" style={{marginRight: 10}} />
-                </TouchableOpacity>
-            </View>
+            <PickerBar 
+                textColor={ colors.firstColor[settings.theme].color }
+                backgroundColor={ colors.firstColor[settings.theme].backgroundColor }
+                label="Premier jour de la semaine"
+                text={daysOfTheWeekPickerData[selectedFirstDayOfTheWeek].label}
+                onPress={() => setModalVisible("firstDay")}
+            />
+            <PickerBar 
+                textColor={ colors.firstColor[settings.theme].color }
+                backgroundColor={ colors.firstColor[settings.theme].backgroundColor }
+                label="Thème"
+                text={themePickerData.find((item) => item.value === selectedTheme).label}
+                onPress={() => setModalVisible("theme")}
+            />
             <ModalPicker
                 isVisible={modalVisible === "firstDay"}
                 setModalVisible={setModalVisible}
