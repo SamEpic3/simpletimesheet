@@ -11,6 +11,7 @@ import SettingsContext from "./contexts/SettingsContext";
 import { getSettings, getWeeksData, storeSettings, storeWeeksData } from './utils/localstorage';
 
 export default function App() {
+  
   const [data, setData] = useState([]);
   const [dataChanged, setDataChanged] = useState(false);
   const [localDataLoading, setLocalDataLoading] = useState(true);

@@ -1,15 +1,26 @@
-import { useEffect, useState, useContext } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { useEffect, useState, useContext, useRef } from 'react';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
 import moment from "moment";
 import DataContext from '../contexts/DataContext';
 import { MaterialIcons } from '@expo/vector-icons';
 import Loading from '../components/Loading';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import SettingsButton from '../components/SettingsButton';
+import FloatingButton from '../components/FloatingButton';
 import SettingsContext from '../contexts/SettingsContext';
 import { colors } from "../consts/colors";
+import { Ionicons } from '@expo/vector-icons';
+import { captureRef } from 'react-native-view-shot';
+import * as MediaLibrary from 'expo-media-library';
 
 export default function MainScreen({ navigation, route }) {
+    const [status, requestPermission] = MediaLibrary.usePermissions();
+
+    if (status === null) {
+        requestPermission();
+    }
+    
+    const imageRef = useRef();
+
     const [weekIndex, setWeekIndex] = useState(0);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [datePickerDate, setDatePickerDate] = useState(new Date())
@@ -161,35 +172,50 @@ export default function MainScreen({ navigation, route }) {
                                         index})
     }
 
+    const onSaveImageAsync = async () => {
+        try {
+          const localUri = await captureRef(imageRef);
+    
+          await MediaLibrary.saveToLibraryAsync(localUri);
+          if (localUri) {
+            Alert.alert("Image enregistrée", "Image enregistrée avec succès");
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      };
+
     return (
         localDataLoading ? <Loading/> :
         <>
             <ScrollView style={[styles.mainScreenContainer, colors.secondColor[settings.theme]]}>
-                {currentWeek.map((day, index) => 
-                    <TouchableOpacity 
-                        key={index} 
-                        style={[styles.dayItem, colors.firstColor[settings.theme]]} 
-                        onPress={() => handleDayPress(day, index)}
-                    >
-                        <View style={styles.dayItemTop}>
-                            <Text style={[styles.weekName, colors.firstColor[settings.theme]]}>
-                                {daysOfTheWeekOriginal[day.date.day()].name + " le " + day.date.date() + " " + monthsOfTheYear[day.date.month()]}
-                            </Text>
-                            <Text style={[styles.hours, colors.firstColor[settings.theme]]}>
-                                {day.hours}
-                            </Text>
-                        </View>
-                        {day.note !== "" && 
-                        <View style={styles.dayItemBottom}>
-                            <Text style={[styles.note, colors.firstColor[settings.theme]]}>
-                                {day.note}
-                            </Text>
-                        </View>}
-                    </TouchableOpacity>
-                )}
-                <View style={[styles.totalContainer, colors.firstColor[settings.theme]]}>
-                    <Text style={[styles.weekName, colors.firstColor[settings.theme]]}>Total</Text>
-                    <Text style={[styles.hours, colors.firstColor[settings.theme]]}>{ currentWeek.reduce((sum, item) => sum + parseFloat(item.hours), 0) }</Text>
+                <View ref={imageRef} collapsable={false} style={colors.secondColor[settings.theme]}>
+                    {currentWeek.map((day, index) => 
+                        <TouchableOpacity 
+                            key={index} 
+                            style={[styles.dayItem, colors.firstColor[settings.theme]]} 
+                            onPress={() => handleDayPress(day, index)}
+                        >
+                            <View style={styles.dayItemTop}>
+                                <Text style={[styles.weekName, colors.firstColor[settings.theme]]}>
+                                    {daysOfTheWeekOriginal[day.date.day()].name + " le " + day.date.date() + " " + monthsOfTheYear[day.date.month()]}
+                                </Text>
+                                <Text style={[styles.hours, colors.firstColor[settings.theme]]}>
+                                    {day.hours}
+                                </Text>
+                            </View>
+                            {day.note !== "" && 
+                            <View style={styles.dayItemBottom}>
+                                <Text style={[styles.note, colors.firstColor[settings.theme]]}>
+                                    {day.note}
+                                </Text>
+                            </View>}
+                        </TouchableOpacity>
+                    )}
+                    <View style={[styles.totalContainer, colors.firstColor[settings.theme]]}>
+                        <Text style={[styles.weekName, colors.firstColor[settings.theme]]}>Total</Text>
+                        <Text style={[styles.hours, colors.firstColor[settings.theme]]}>{ currentWeek.reduce((sum, item) => sum + parseFloat(item.hours), 0) }</Text>
+                    </View>
                 </View>
             </ScrollView>
             {datePickerOpen && (
@@ -204,7 +230,12 @@ export default function MainScreen({ navigation, route }) {
                     display={Platform.OS === "ios" ? "inline" : ""}
                 />
             )}
-            <SettingsButton style={styles.settingsButton} onPress={() => navigation.navigate("settings")}/>
+            <FloatingButton style={styles.settingsButton} onPress={() => navigation.navigate("settings")}>
+                <Ionicons name="settings-sharp" size={24} color="#eee" />
+            </FloatingButton>
+            <FloatingButton style={styles.savingButton} onPress={() => onSaveImageAsync()}>
+                <Ionicons name="save" size={24} color="#eee" />
+            </FloatingButton>
         </>
     );
 }
@@ -246,7 +277,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginTop: 10,
+        marginTop: 4,
+        marginBottom: 2,
         paddingVertical: 10,
         paddingHorizontal: 20
     },
@@ -254,5 +286,10 @@ const styles = StyleSheet.create({
         position: "absolute",
         right: 20,
         bottom: 50
+    },
+    savingButton: {
+        position: "absolute",
+        right: 20,
+        bottom: 120
     }
 })
