@@ -36,7 +36,6 @@ export default function App() {
       if(storedSettings) {
         setSettings((previousSettings) => ({ ...previousSettings, ...storedSettings }));
       }
-      console.log(storedSettings);
     }
     fetchLocalData();
     fetchLocalSettings();
