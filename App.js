@@ -34,8 +34,9 @@ export default function App() {
     async function fetchLocalSettings() {
       storedSettings = await getSettings();
       if(storedSettings) {
-        setSettings((previousSettings) => ({ ...previousSettings, storedSettings }));
+        setSettings((previousSettings) => ({ ...previousSettings, ...storedSettings }));
       }
+      console.log(storedSettings);
     }
     fetchLocalData();
     fetchLocalSettings();
